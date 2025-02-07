@@ -2,6 +2,8 @@ import React from 'react';
 import FillInTheBlank from '../components/FillBlankQuestion/FillBlankQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion/MultipleChoiceQuestion';
 import WordMatchQuestion from '../components/WordMatchQuestion/WordMatchQuestion';
+import ListeningQuestion from '../components/ListeningQuestion/ListeningQuestion';
+import exampleAudio from '../assets/example.mp3';
 
 const TestingPage: React.FC = () => {
     return (
@@ -21,6 +23,16 @@ const TestingPage: React.FC = () => {
             translatedWords={["Tanıtım", "Şarkı", "Performans"]}
             answer={[
                 ["Song", "Şarkı"], ["Introduction", "Tanıtım"], ["Performance", "Performans"]]}
+            />
+            <ListeningQuestion 
+            audioSrc={exampleAudio}
+            options={[
+                "The weather is beautiful.",
+                "Thanks, I had a wonderfull time!",
+                "I had to leave as my house was on fire.",
+                "I am Dan, what is your name?"
+            ]}
+            answer={2}
             />
             <h1>Testing Page</h1>
             <p>This is a boilerplate testing page component.</p>

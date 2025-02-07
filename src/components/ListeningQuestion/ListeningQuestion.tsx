@@ -1,25 +1,27 @@
 import React, { useState } from "react";
+import WaveForm from "../WaveForm/WaveForm";
 import OptionSelect from "../OptionSelect/OptionSelect";
 
-interface MultipleChoiceQuestionProps {
-  text: string;
+interface ListeningQuestionProps {
+  audioSrc: string;
   options: string[];
   answer: number;
   questionText?: string;
+  audioText?: string;
 }
 
-const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
-  text,
+const ListeningQuestion: React.FC<ListeningQuestionProps> = ({
+  audioSrc,
   options,
   answer,
-  questionText = "Please select the correct option below according to the question",
+  questionText = "What is the correct answer to the question above?",
 }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [highlighted, setHighlighted] = useState<boolean[]>(new Array(options.length).fill(false));
 
   const handleSelect = (index: number) => {
     setSelectedOption(index);
-    setHighlighted(new Array(options.length).fill(false)); // Reset highlights on new selection
+    setHighlighted(new Array(options.length).fill(false)); // Reset highlights
   };
 
   const checkAnswer = (): boolean | null => {
@@ -33,7 +35,11 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
 
   return (
     <div className="p-4 space-y-6">
-      <p className="text-lg">{text}</p>
+      {/* Waveform Display */}
+      <WaveForm
+        audioSrc={audioSrc}
+        bordered={false} // or false, based on your requirement
+      />
       <h2 className="text-lg font-semibold">{questionText}</h2>
 
       <OptionSelect options={options} selectedOption={selectedOption} highlighted={highlighted} onSelect={handleSelect} />
@@ -51,4 +57,4 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
   );
 };
 
-export default MultipleChoiceQuestion
+export default ListeningQuestion;
