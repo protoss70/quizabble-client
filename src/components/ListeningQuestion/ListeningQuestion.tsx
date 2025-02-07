@@ -38,7 +38,7 @@ const ListeningQuestion: React.FC<ListeningQuestionProps> = ({
       {/* Waveform Display */}
       <WaveForm
         audioSrc={audioSrc}
-        bordered={false} // or false, based on your requirement
+        bordered={true} // or false, based on your requirement
       />
       <h2 className="text-lg font-semibold">{questionText}</h2>
 
