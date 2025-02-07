@@ -4,7 +4,12 @@ interface WordMatchQuestionProps {
   originalWords: string[];
   translatedWords: string[];
   questionText?: string;
-  answer: string[][];
+  answer: string[][]; 
+}
+
+interface PendingMatch {
+  original: string;
+  translated: string;
 }
 
 const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
@@ -18,12 +23,22 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
   const [matchedWords, setMatchedWords] = useState<string[][]>([]);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
   const [incorrectMatches, setIncorrectMatches] = useState<string[][]>([]);
+  const [pendingMatch, setPendingMatch] = useState<PendingMatch | null>(null);
 
+  // When a word is clicked, clear any previous error state so that incorrect matches vanish.
   const handleOriginalClick = (word: string) => {
+    if (incorrectMatches.length > 0 || isAnswerCorrect === false) {
+      setIncorrectMatches([]);
+      setIsAnswerCorrect(null);
+    }
     setActiveOriginal(word);
   };
 
   const handleTranslatedClick = (word: string) => {
+    if (incorrectMatches.length > 0 || isAnswerCorrect === false) {
+      setIncorrectMatches([]);
+      setIsAnswerCorrect(null);
+    }
     setActiveTranslated(word);
   };
 
@@ -36,13 +51,19 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
       );
 
       if (isMatch) {
-        setMatchedWords((prev) => [...prev, [activeOriginal, activeTranslated]]);
         setIsAnswerCorrect(true);
+        // Set pending match so the buttons become green (with transition)
+        setPendingMatch({ original: activeOriginal, translated: activeTranslated });
+        // After 400ms, add them to matchedWords (which sets opacity to 0) and clear pending state.
+        setTimeout(() => {
+          setMatchedWords((prev) => [...prev, [activeOriginal, activeTranslated]]);
+          setPendingMatch(null);
+        }, 400);
       } else {
+        // If the match is incorrect, mark them as incorrect.
         setIncorrectMatches([[activeOriginal, activeTranslated]]);
         setIsAnswerCorrect(false);
       }
-
       setActiveOriginal(null);
       setActiveTranslated(null);
     }
@@ -54,13 +75,14 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
     }
   }, [activeOriginal, activeTranslated]);
 
-  // Reset function to clear the matches and reset states
+  // Reset function to clear all states.
   const resetMatches = () => {
     setActiveOriginal(null);
     setActiveTranslated(null);
     setMatchedWords([]);
     setIncorrectMatches([]);
     setIsAnswerCorrect(null);
+    setPendingMatch(null);
   };
 
   return (
@@ -74,15 +96,20 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
               key={index}
               id={`originalWord-${word}`}
               onClick={() => handleOriginalClick(word)}
-              className={`w-32 px-4 py-2 border rounded ${
-                activeOriginal === word
+              className={`w-32 px-4 py-2 border rounded transition-all duration-[300ms] ${
+                // Show green if this word is active or is part of a pending match.
+                (activeOriginal === word || (pendingMatch && pendingMatch.original === word))
                   ? "bg-green-500 text-white"
-                  : incorrectMatches.some(
-                      (pair) => pair[0] === word && pair[1] === activeTranslated
-                    )
+                  : // If this word is part of an incorrect match (with the currently active translated word), show red.
+                  incorrectMatches.some((pair) => pair[0] === word)
                   ? "bg-red-500 text-white"
                   : "bg-white"
-              } ${matchedWords.some(([matchedOriginal]) => matchedOriginal === word) ? "opacity-0" : ""}`}
+              } ${
+                // Fade out if the word has already been matched.
+                matchedWords.some(([matchedOriginal]) => matchedOriginal === word)
+                  ? "opacity-0 pointer-events-none"
+                  : ""
+              }`}
             >
               {word}
             </button>
@@ -95,15 +122,17 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
               key={index}
               id={`translatedWord-${word}`}
               onClick={() => handleTranslatedClick(word)}
-              className={`w-32 px-4 py-2 border rounded ${
-                activeTranslated === word
+              className={`w-32 px-4 py-2 border rounded transition-all duration-[300ms] ${
+                (activeTranslated === word || (pendingMatch && pendingMatch.translated === word))
                   ? "bg-green-500 text-white"
-                  : incorrectMatches.some(
-                      (pair) => pair[0] === activeOriginal && pair[1] === word
-                    )
+                  : incorrectMatches.some((pair) => pair[1] === word)
                   ? "bg-red-500 text-white"
                   : "bg-white"
-              } ${matchedWords.some(([, matchedTranslated]) => matchedTranslated === word) ? "opacity-0" : ""}`}
+              } ${
+                matchedWords.some(([, matchedTranslated]) => matchedTranslated === word)
+                  ? "opacity-0 pointer-events-none"
+                  : ""
+              }`}
             >
               {word}
             </button>
@@ -113,13 +142,14 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
 
       {isAnswerCorrect !== null && (
         <p
-          className={`mt-4 text-lg transition-opacity delay-1000 ${isAnswerCorrect ? "text-green-600 opacity-100" : "text-red-600 opacity-100"}`}
+          className={`mt-4 text-lg transition-opacity delay-1000 ${
+            isAnswerCorrect ? "text-green-600 opacity-100" : "text-red-600 opacity-100"
+          }`}
         >
           {isAnswerCorrect ? "Correct!" : "Incorrect. Try again!"}
         </p>
       )}
 
-      {/* Reset button */}
       <button
         onClick={resetMatches}
         className="px-4 py-2 mt-4 font-semibold text-white bg-gray-500 rounded hover:bg-gray-600"
