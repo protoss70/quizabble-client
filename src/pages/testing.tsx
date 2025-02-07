@@ -1,6 +1,7 @@
 import React from 'react';
-import FillInTheBlank from '../components/BlankQuestion/BlankQuestion';
+import FillInTheBlank from '../components/FillBlankQuestion/FillBlankQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion/MultipleChoiceQuestion';
+import WordMatchQuestion from '../components/WordMatchQuestion/WordMatchQuestion';
 
 const TestingPage: React.FC = () => {
     return (
@@ -15,6 +16,12 @@ const TestingPage: React.FC = () => {
                 "I like to play with toys"]} 
                 answer={1}
                 />
+            <WordMatchQuestion 
+            originalWords={["Song", "Introduction", "Performance"]} 
+            translatedWords={["Tanıtım", "Şarkı", "Performans"]}
+            answer={[
+                ["Song", "Şarkı"], ["Introduction", "Tanıtım"], ["Performance", "Performans"]]}
+            />
             <h1>Testing Page</h1>
             <p>This is a boilerplate testing page component.</p>
         </div>
