@@ -16,6 +16,7 @@ const FillInTheBlank: React.FC<FillInTheBlankProps> = ({
   const blanks = text.split("_");
   const [userAnswers, setUserAnswers] = useState<string[]>(answers.map(() => ""));
   const [highlighted, setHighlighted] = useState<boolean[]>(answers.map(() => false));
+  const [checkResult, setCheckResult] = useState<boolean | null>(null);
 
   const handleChange = (index: number, value: string) => {
     const newAnswers = [...userAnswers];
@@ -27,16 +28,19 @@ const FillInTheBlank: React.FC<FillInTheBlankProps> = ({
   const checkAnswers = (): boolean | null => {
     if (userAnswers.some((ans) => ans === "")) {
       setHighlighted(userAnswers.map((ans) => ans === ""));
+      setCheckResult(null);
       return null;
     }
     setHighlighted(answers.map(() => false));
-    return userAnswers.every((ans, i) => ans === answers[i]);
+    const isCorrect = userAnswers.every((ans, i) => ans === answers[i]);
+    setCheckResult(isCorrect);
+    return isCorrect;
   };
 
   return (
     <div className="p-4 space-y-6">
-      <h2 className="text-lg font-semibold">{question}</h2>
-      <p className="text-lg">
+      <h2 className="text-lg font-semibold text-start">{question}</h2>
+      <p className="text-lg text-start">
         {blanks.map((part, index) => (
           <React.Fragment key={index}>
             {part}
@@ -57,12 +61,14 @@ const FillInTheBlank: React.FC<FillInTheBlankProps> = ({
       {options && (
         <div className="space-y-2">
           {options[0].map((_, i) => (
-            <div key={i} className="flex gap-2">
+            <div key={i} className="flex justify-center gap-2">
+              <div className="flex items-center justify-center">
+              </div>
               {options.map((group) => (
                 <button
                   key={group[i]}
                   onClick={() => handleChange(i, group[i])}
-                  className={`px-3 py-1 border rounded hover:brightness-90 ${
+                  className={`px-3 flex-1 max-w-36 py-1 border rounded hover:brightness-90 ${
                     userAnswers[i] === group[i] ? "bg-blue-500 text-white" : "bg-white"
                   }`}
                 >
@@ -77,12 +83,21 @@ const FillInTheBlank: React.FC<FillInTheBlankProps> = ({
       <button
         onClick={() => {
           setHighlighted(answers.map(() => false)); // Reset highlights when checking answers
-          console.log(checkAnswers());
+          checkAnswers();
         }}
         className="px-4 py-2 font-semibold text-white bg-green-500 rounded hover:bg-green-600"
       >
         Check Answers
       </button>
+
+      {checkResult !== null && (
+        <span className="block mt-4 text-lg">
+          {checkResult ? "True" : "False"}
+        </span>
+      )}
+      {checkResult === null && (
+        <span className="block mt-4 text-lg">Null</span>
+      )}
     </div>
   );
 };

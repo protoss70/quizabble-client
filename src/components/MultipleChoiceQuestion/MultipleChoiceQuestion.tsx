@@ -16,6 +16,7 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
 }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [highlighted, setHighlighted] = useState<boolean[]>(new Array(options.length).fill(false));
+  const [checkResult, setCheckResult] = useState<boolean | null>(null);
 
   const handleSelect = (index: number) => {
     setSelectedOption(index);
@@ -25,18 +26,26 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
   const checkAnswer = (): boolean | null => {
     if (selectedOption === null) {
       setHighlighted(new Array(options.length).fill(true)); // Highlight all options if no answer is selected
+      setCheckResult(null);
       return null;
     }
     setHighlighted(new Array(options.length).fill(false));
-    return selectedOption === answer;
+    const isCorrect = selectedOption === answer;
+    setCheckResult(isCorrect);
+    return isCorrect;
   };
 
   return (
     <div className="p-4 space-y-6">
-      <p className="text-lg">{text}</p>
-      <h2 className="text-lg font-semibold">{questionText}</h2>
+      <p className="text-lg text-start">{text}</p>
+      <h2 className="text-lg font-semibold text-start">{questionText}</h2>
 
-      <OptionSelect options={options} selectedOption={selectedOption} highlighted={highlighted} onSelect={handleSelect} />
+      <OptionSelect
+        options={options}
+        selectedOption={selectedOption}
+        highlighted={highlighted}
+        onSelect={handleSelect}
+      />
 
       <button
         onClick={() => {
@@ -47,8 +56,17 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
       >
         Check Answer
       </button>
+
+      {checkResult !== null && (
+        <span className="block mt-4 text-lg">
+          {checkResult ? "True" : "False"}
+        </span>
+      )}
+      {checkResult === null && (
+        <span className="block mt-4 text-lg">Null</span>
+      )}
     </div>
   );
 };
 
-export default MultipleChoiceQuestion
+export default MultipleChoiceQuestion;

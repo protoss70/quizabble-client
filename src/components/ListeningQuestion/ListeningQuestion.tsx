@@ -40,7 +40,7 @@ const ListeningQuestion: React.FC<ListeningQuestionProps> = ({
         audioSrc={audioSrc}
         bordered={true} // or false, based on your requirement
       />
-      <h2 className="text-lg font-semibold">{questionText}</h2>
+      <h2 className="text-lg font-semibold text-start">{questionText}</h2>
 
       <OptionSelect options={options} selectedOption={selectedOption} highlighted={highlighted} onSelect={handleSelect} />
 

@@ -4,7 +4,7 @@ interface WordMatchQuestionProps {
   originalWords: string[];
   translatedWords: string[];
   questionText?: string;
-  answer: string[][]; 
+  answer: string[][];
 }
 
 const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
@@ -41,24 +41,33 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
       } else {
         setIncorrectMatches([[activeOriginal, activeTranslated]]);
         setIsAnswerCorrect(false);
-    }
-    
-        setActiveOriginal(null);
-        setActiveTranslated(null);
+      }
+
+      setActiveOriginal(null);
+      setActiveTranslated(null);
     }
   };
 
   useEffect(() => {
-    if (activeOriginal && activeTranslated){
-        checkAnswer();
+    if (activeOriginal && activeTranslated) {
+      checkAnswer();
     }
-  }, [activeOriginal, activeTranslated])
+  }, [activeOriginal, activeTranslated]);
+
+  // Reset function to clear the matches and reset states
+  const resetMatches = () => {
+    setActiveOriginal(null);
+    setActiveTranslated(null);
+    setMatchedWords([]);
+    setIncorrectMatches([]);
+    setIsAnswerCorrect(null);
+  };
 
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-lg font-semibold">{questionText}</h2>
 
-      <div className="flex justify-between">
+      <div className="flex justify-around">
         <div className="flex flex-col space-y-2">
           {originalWords.map((word, index) => (
             <button
@@ -102,20 +111,21 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
         </div>
       </div>
 
-      <button
-        onClick={checkAnswer}
-        className="px-4 py-2 mt-4 font-semibold text-white bg-green-500 rounded hover:bg-green-600"
-      >
-        Check Answer
-      </button>
-
       {isAnswerCorrect !== null && (
         <p
-        className={`mt-4 text-lg transition-opacity delay-1000 ${isAnswerCorrect ? "text-green-600 opacity-100" : "text-red-600 opacity-100"}`}
-      >
-        {isAnswerCorrect ? "Correct!" : "Incorrect. Try again!"}
-      </p>
+          className={`mt-4 text-lg transition-opacity delay-1000 ${isAnswerCorrect ? "text-green-600 opacity-100" : "text-red-600 opacity-100"}`}
+        >
+          {isAnswerCorrect ? "Correct!" : "Incorrect. Try again!"}
+        </p>
       )}
+
+      {/* Reset button */}
+      <button
+        onClick={resetMatches}
+        className="px-4 py-2 mt-4 font-semibold text-white bg-gray-500 rounded hover:bg-gray-600"
+      >
+        Reset
+      </button>
     </div>
   );
 };
