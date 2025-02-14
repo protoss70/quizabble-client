@@ -5,6 +5,7 @@ import WordMatchQuestion from '../components/WordMatchQuestion/WordMatchQuestion
 import ListeningQuestion from '../components/ListeningQuestion/ListeningQuestion';
 import exampleAudio from '../assets/example.mp3';
 import RearrangementQuestion from '../components/RearrangeQuestion/RearrangeQuestion';
+import SpeakingQuestion from '../components/SpeakingQuestion/SpeakingQuestion';
 
 const TestingPage: React.FC = () => {
     return (
@@ -47,6 +48,11 @@ const TestingPage: React.FC = () => {
                 <RearrangementQuestion 
                 words={["am", "I", "Daniel"]}
                 answer={["I", "am", "Daniel"]}
+                />
+            </div>
+            <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
+                <SpeakingQuestion 
+                question='Voice test'
                 />
             </div>
             <h1>Testing Page</h1>
