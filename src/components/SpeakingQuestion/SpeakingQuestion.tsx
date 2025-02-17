@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 
 interface SpeakingQuestionProps {
-  /** The sentence the user should pronounce */
-  question: string;
-  /** Optional helper text; defaults to "Please pronounce the sentence written above" */
-  questionText?: string;
+  /** The object containing the question details */
+  questionObj: {
+    type: string;
+    question: string;
+    questionText?: string;
+  };
 }
 
 const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
-  question,
-  questionText = "Please pronounce the sentence written above",
+  questionObj,
 }) => {
+  const { question, questionText = "Please pronounce the sentence written above" } = questionObj;
+  
   const [recordedText, setRecordedText] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [checkResult, setCheckResult] = useState<boolean | null>(null);
@@ -45,7 +48,6 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
       setIsRecording(false);
     };
 
-    
     recognition.onerror = (event: any) => { // eslint-disable-line
       setError("Error during recognition: " + event.error);
       setIsRecording(false);

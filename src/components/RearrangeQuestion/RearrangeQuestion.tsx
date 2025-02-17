@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
+import WaveForm from "../WaveForm/WaveForm";
 
 interface RearrangementQuestionProps {
-  words: string[];
-  answer: string[];
-  questionText?: string;
+  question: {
+    type: "rearrangement-listening" | "rearrangement";
+    question: string;
+    solution: string;
+    options: string[];
+  };
 }
 
 interface DragItem {
@@ -13,19 +17,22 @@ interface DragItem {
   index: number;
 }
 
-const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
-  words,
-  answer,
-  questionText = "Arrange the words to form the correct sentence.",
-}) => {
-  // States for available words (bottom) and constructed sentence (top)
-  const [availableWords, setAvailableWords] = useState<string[]>(words);
+const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question }) => {
+  const { solution, options, question: questionText } = question;
+  const answer = solution.split(" ");
+
+  // State initialization
+  const [availableWords, setAvailableWords] = useState<string[]>(options);
   const [constructedSentence, setConstructedSentence] = useState<string[]>([]);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-  const [showRedOutline, setShowRedOutline] = useState(false);
 
-  // Container drop zones allow words to be dropped into an empty area
-  // Top container accepts "available" words to add them to the constructed sentence.
+  // Reset state when the question prop changes
+  useEffect(() => {
+    setAvailableWords(options);
+    setConstructedSentence([]);
+    setIsAnswerCorrect(null);
+  }, [question, options]);
+
   const [, topDrop] = useDrop<DragItem, void>({
     accept: "available",
     drop: (item) => {
@@ -36,7 +43,6 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
     },
   });
 
-  // Bottom container accepts "constructed" words to move them back to available.
   const [, bottomDrop] = useDrop<DragItem, void>({
     accept: "constructed",
     drop: (item) => {
@@ -47,12 +53,11 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
     },
   });
 
-  // Functions to reorder words within the same container
   const moveConstructedWord = (dragIndex: number, hoverIndex: number) => {
     const newList = [...constructedSentence];
     const [removed] = newList.splice(dragIndex, 1);
     newList.splice(hoverIndex, 0, removed);
-    setConstructedSentence(newList);    
+    setConstructedSentence(newList);
   };
 
   const moveAvailableWord = (dragIndex: number, hoverIndex: number) => {
@@ -62,20 +67,16 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
     setAvailableWords(newList);
   };
 
-  // Clicking a word moves it to the other container
   const moveToConstructed = (word: string) => {
     setAvailableWords((prev) => prev.filter((w) => w !== word));
     setConstructedSentence((prev) => [...prev, word]);
-    setShowRedOutline(false); // Reset the red outline
   };
 
   const moveToAvailable = (word: string) => {
     setConstructedSentence((prev) => prev.filter((w) => w !== word));
     setAvailableWords((prev) => [...prev, word]);
-    setShowRedOutline(false);
   };
 
-  // Draggable & droppable component for available words
   const AvailableWord: React.FC<{ word: string; index: number }> = ({ word, index }) => {
     const [{ isDragging }, drag] = useDrag({
       type: "available",
@@ -96,7 +97,7 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
       <div
         ref={(node) => drag(drop(node))}
         onClick={() => moveToConstructed(word)}
-        className={`p-2 border border-gray-300 rounded-md cursor-move ${showRedOutline ? "border-red-500" : ""}`}
+        className="p-2 border border-gray-300 rounded-md cursor-move"
         style={{ opacity: isDragging ? 0.5 : 1 }}
       >
         {word}
@@ -104,7 +105,6 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
     );
   };
 
-  // Draggable & droppable component for constructed words
   const ConstructedWord: React.FC<{ word: string; index: number }> = ({ word, index }) => {
     const [{ isDragging }, drag] = useDrag({
       type: "constructed",
@@ -134,19 +134,20 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
   };
 
   const checkAnswer = () => {
-    if (availableWords.length > 0) {
-      setShowRedOutline(true);
-      return;
-    }
-    const correct = JSON.stringify(constructedSentence) === JSON.stringify(answer);
+    const correct =
+      constructedSentence.map((w) => w.toLowerCase()).join(" ") ===
+      answer.map((w) => w.toLowerCase()).join(" ");
     setIsAnswerCorrect(correct);
   };
 
   return (
     <div className="p-4 space-y-6">
-      <h2 className="text-lg font-semibold">{questionText}</h2>
+      {question.type === "rearrangement-listening" ? (
+        <WaveForm audioSrc={questionText} bordered={true} />
+      ) : (
+        <h2 className="text-lg font-semibold">{questionText}</h2>
+      )}
 
-      {/* Top drop zone: Constructed sentence area */}
       <div
         ref={topDrop}
         className="flex items-center p-4 h-14 space-x-2 border border-gray-300 min-h-[50px]"
@@ -162,14 +163,10 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
         )}
       </div>
 
-      {/* Bottom drop zone: Available words area */}
-      <div
-        ref={bottomDrop}
-        className="flex space-x-2 h-11"
-      >
+      <div ref={bottomDrop} className="flex space-x-2 h-11">
         {availableWords.map((word, index) => (
-            <AvailableWord key={index} word={word} index={index} />
-          ))}
+          <AvailableWord key={index} word={word} index={index} />
+        ))}
       </div>
 
       <button
@@ -180,11 +177,7 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({
       </button>
 
       {isAnswerCorrect !== null && (
-        <p
-          className={`mt-4 text-lg ${
-            isAnswerCorrect ? "text-green-600" : "text-red-600"
-          }`}
-        >
+        <p className={`mt-4 text-lg ${isAnswerCorrect ? "text-green-600" : "text-red-600"}`}>
           {isAnswerCorrect ? "Correct!" : "Incorrect. Try again!"}
         </p>
       )}

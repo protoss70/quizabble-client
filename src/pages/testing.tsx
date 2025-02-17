@@ -1,17 +1,25 @@
 import React from 'react';
-import FillInTheBlank from '../components/FillBlankQuestion/FillBlankQuestion';
-import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion/MultipleChoiceQuestion';
-import WordMatchQuestion from '../components/WordMatchQuestion/WordMatchQuestion';
-import ListeningQuestion from '../components/ListeningQuestion/ListeningQuestion';
-import exampleAudio from '../assets/example.mp3';
-import RearrangementQuestion from '../components/RearrangeQuestion/RearrangeQuestion';
-import SpeakingQuestion from '../components/SpeakingQuestion/SpeakingQuestion';
+// import FillInTheBlank from '../components/FillBlankQuestion/FillBlankQuestion';
+// import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion/MultipleChoiceQuestion';
+// import WordMatchQuestion from '../components/WordMatchQuestion/WordMatchQuestion';
+// import ListeningQuestion from '../components/ListeningQuestion/ListeningQuestion';
+// import exampleAudio from '../assets/example.mp3';
+// import RearrangementQuestion from '../components/RearrangeQuestion/RearrangeQuestion';
+// import SpeakingQuestion from '../components/SpeakingQuestion/SpeakingQuestion';
+// import { questions } from "../../questionSample";
 
 const TestingPage: React.FC = () => {
+    // const blankQ1 = questions.questions[3];
+    // const rearQ1 = questions.questions[2];
+    // const rearQ2 = questions.questions[1];
+    // const matchQ1 = questions.questions[0];
+    // const speaQ1 = questions.questions[6]
     return (
         <div className='px-60'>
-            <div className='p-4 border-2 border-gray-400 rounded-xl'>
-                <FillInTheBlank text='In my free time I like to _ the guitar and _ television' answers={["play", "watch"]} options={[["play", "watch"], ["eat", "sleep"]]} />
+            {/* <div className='p-4 border-2 border-gray-400 rounded-xl'>
+                <FillInTheBlank 
+                question={blankQ1}
+                />
             </div>
             <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
                 <MultipleChoiceQuestion 
@@ -26,10 +34,7 @@ const TestingPage: React.FC = () => {
             </div>
             <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
                 <WordMatchQuestion 
-                originalWords={["Song", "Introduction", "Performance"]} 
-                translatedWords={["Tanıtım", "Şarkı", "Performans"]}
-                answer={[
-                    ["Song", "Şarkı"], ["Introduction", "Tanıtım"], ["Performance", "Performans"]]}
+                question={matchQ1}
                 />
             </div>
             <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
@@ -46,15 +51,19 @@ const TestingPage: React.FC = () => {
             </div>
             <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
                 <RearrangementQuestion 
-                words={["am", "I", "Daniel"]}
-                answer={["I", "am", "Daniel"]}
+                question={rearQ1}
+                />
+            </div>
+            <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
+                <RearrangementQuestion 
+                question={rearQ2}
                 />
             </div>
             <div className='p-4 mt-2 border-2 border-gray-400 rounded-xl'>
                 <SpeakingQuestion 
-                question='Voice test'
+                questionObj={speaQ1}
                 />
-            </div>
+            </div> */}
             <h1>Testing Page</h1>
             <p>This is a boilerplate testing page component.</p>
         </div>

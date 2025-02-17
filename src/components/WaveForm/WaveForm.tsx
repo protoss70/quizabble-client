@@ -6,6 +6,8 @@ interface WaveformDisplayProps {
   bordered: boolean;
 }
 
+const audioCache: { [key: string]: string } = {}; // Simple in-memory cache for audio URLs
+
 const WaveForm: React.FC<WaveformDisplayProps> = ({ audioSrc, bordered }) => {
   const waveformRef = useRef<HTMLDivElement>(null);
   const wavesurfer = useRef<WaveSurfer | null>(null);
@@ -23,13 +25,22 @@ const WaveForm: React.FC<WaveformDisplayProps> = ({ audioSrc, bordered }) => {
         cursorWidth: 0,
       });
 
-      wavesurfer.current.load(audioSrc);
+      // Check if the audio file is already cached
+      let audioUrl = audioCache[audioSrc];
 
-      // Listen for play and finish events
+      // If not cached, add it to the cache
+      if (!audioUrl) {
+        audioUrl = `${audioSrc}?timestamp=${new Date().getTime()}`;
+        audioCache[audioSrc] = audioUrl;
+      }
+
+      // Load the cached or new audio file URL
+      wavesurfer.current.load(audioUrl);
+
       wavesurfer.current.on("play", () => setIsPlaying(true));
       wavesurfer.current.on("finish", () => setIsPlaying(false));
 
-      return () => wavesurfer.current?.destroy(); // Cleanup on unmount
+      return () => wavesurfer.current?.destroy();
     }
   }, [audioSrc]);
 
@@ -51,9 +62,9 @@ const WaveForm: React.FC<WaveformDisplayProps> = ({ audioSrc, bordered }) => {
 
   return (
     <div
-      className={`relative p-1 w-min ${
-        bordered ? "border-2 border-gray-500 rounded-xl" : ""
-      } ${isPlaying && bordered ? " bg-slate-100" : ""}`} // Add bg-slate-100 when playing and bordered
+      className={`relative p-1 w-min ${bordered ? "border-2 border-gray-500 rounded-xl" : ""} ${
+        isPlaying && bordered ? " bg-slate-100" : ""
+      }`} // Add bg-slate-100 when playing and bordered
     >
       <button
         onClick={handlePlay}
