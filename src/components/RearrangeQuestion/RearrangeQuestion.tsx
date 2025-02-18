@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import WaveForm from "../WaveForm/WaveForm";
+import { playAnswerSoundFX } from "../../utils/soundFX";
 
 interface RearrangementQuestionProps {
   question: {
@@ -9,6 +10,7 @@ interface RearrangementQuestionProps {
     solution: string;
     options: string[];
   };
+  setQuestionSolved: (on: boolean) => void;
 }
 
 interface DragItem {
@@ -17,7 +19,7 @@ interface DragItem {
   index: number;
 }
 
-const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question }) => {
+const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question, setQuestionSolved }) => {
   const { solution, options, question: questionText } = question;
   const answer = solution.split(" ");
 
@@ -25,13 +27,6 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question 
   const [availableWords, setAvailableWords] = useState<string[]>(options);
   const [constructedSentence, setConstructedSentence] = useState<string[]>([]);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-
-  // Reset state when the question prop changes
-  useEffect(() => {
-    setAvailableWords(options);
-    setConstructedSentence([]);
-    setIsAnswerCorrect(null);
-  }, [question, options]);
 
   const [, topDrop] = useDrop<DragItem, void>({
     accept: "available",
@@ -52,6 +47,12 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question 
       }
     },
   });
+
+  useEffect(() => {
+    if (isAnswerCorrect){
+      setQuestionSolved(true);
+    }
+  }, [isAnswerCorrect])
 
   const moveConstructedWord = (dragIndex: number, hoverIndex: number) => {
     const newList = [...constructedSentence];
@@ -137,6 +138,7 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question 
     const correct =
       constructedSentence.map((w) => w.toLowerCase()).join(" ") ===
       answer.map((w) => w.toLowerCase()).join(" ");
+    playAnswerSoundFX(correct);
     setIsAnswerCorrect(correct);
   };
 
@@ -169,12 +171,12 @@ const RearrangementQuestion: React.FC<RearrangementQuestionProps> = ({ question 
         ))}
       </div>
 
-      <button
+      {!isAnswerCorrect && <button
         onClick={checkAnswer}
         className="px-4 py-2 mt-4 font-semibold text-white bg-green-500 rounded hover:bg-green-600"
       >
         Check Answer
-      </button>
+      </button>}
 
       {isAnswerCorrect !== null && (
         <p className={`mt-4 text-lg ${isAnswerCorrect ? "text-green-600" : "text-red-600"}`}>

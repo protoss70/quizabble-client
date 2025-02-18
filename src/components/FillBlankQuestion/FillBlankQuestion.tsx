@@ -1,56 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { playAnswerSoundFX } from "../../utils/soundFX";
 
 interface FillInTheBlankQuestion {
   type: "fillInTheBlank";
   question: string;
   text: string;
-  solution: string[];
+  solution: string; // Now a string instead of an array
   options: string[];
 }
 
 interface Props {
   question: FillInTheBlankQuestion;
-  dev?: boolean;
+  setQuestionSolved: (on: boolean) => void;
 }
 
-const FillInTheBlank: React.FC<Props> = ({ question, dev=true }) => {
+const FillInTheBlank: React.FC<Props> = ({ question, setQuestionSolved }) => {
   const { text, solution, options } = question;
-
-  const blanks = text.split("_");
-  const [userAnswers, setUserAnswers] = useState<string[]>(
-    solution.map(() => "")
-  );
-  const [highlighted, setHighlighted] = useState<boolean[]>(
-    solution.map(() => false)
-  );
+  const parts = text.split("_"); // Expecting exactly two parts
+  const [userAnswer, setUserAnswer] = useState<string>("");
   const [checkResult, setCheckResult] = useState<boolean | null>(null);
 
-  const handleChange = (index: number, value: string) => {
-    const newAnswers = [...userAnswers];
-    newAnswers[index] = value;
-    setUserAnswers(newAnswers);
-    setHighlighted(solution.map(() => false));
-  };
+  // If the answer is correct, inform the parent
+  useEffect(() => {
+    if (checkResult) {
+      setQuestionSolved(true);
+    }
+  }, [checkResult, setQuestionSolved]);
 
+  // Called when an option button is clicked
   const handleOptionClick = (option: string) => {
-    const emptyIndex = userAnswers.findIndex((ans) => ans === "");
-    if (userAnswers.includes(option)) {
-      const newAnswers = userAnswers.map((ans) => (ans === option ? "" : ans));
-      setUserAnswers(newAnswers);
-    } else if (emptyIndex !== -1) {
-      handleChange(emptyIndex, option);
+    // Toggle off if user clicks the same option
+    if (userAnswer === option) {
+      setUserAnswer("");
+      setCheckResult(null);
+    } else {
+      setUserAnswer(option);
+      checkAnswers(option);
     }
   };
 
-  const checkAnswers = (): boolean | null => {
-    if (userAnswers.some((ans) => ans === "")) {
-      setHighlighted(userAnswers.map((ans) => ans === ""));
-      setCheckResult(null);
-      return null;
-    }
-    setHighlighted(solution.map(() => false));
-    const isCorrect = userAnswers.every((ans, i) => ans === solution[i]);
+  // Compare the selected answer with the solution (case-insensitive)
+  const checkAnswers = (selectedAnswer: string): boolean => {
+    const isCorrect = selectedAnswer.toLowerCase() === solution.toLowerCase();
     setCheckResult(isCorrect);
+    playAnswerSoundFX(isCorrect);
     return isCorrect;
   };
 
@@ -58,21 +51,14 @@ const FillInTheBlank: React.FC<Props> = ({ question, dev=true }) => {
     <div className="p-4 space-y-6">
       <h2 className="text-lg font-semibold text-start">{question.question}</h2>
       <p className="text-lg text-start">
-        {blanks.map((part, index) => (
-          <React.Fragment key={index}>
-            {part}
-            {index < solution.length && (
-              <input
-                type="text"
-                value={userAnswers[index]}
-                readOnly
-                className={`w-20 px-2 py-1 mx-2 text-center border rounded bg-gray-100 cursor-not-allowed ${
-                  highlighted[index] ? "border-red-500 bg-red-100" : ""
-                }`}
-              />
-            )}
-          </React.Fragment>
-        ))}
+        {parts[0]}
+        <input
+          type="text"
+          value={userAnswer}
+          readOnly
+          className="w-20 px-2 py-1 mx-2 text-center bg-gray-100 border rounded cursor-not-allowed"
+        />
+        {parts[1]}
       </p>
 
       <div className="flex flex-col items-center gap-2">
@@ -81,37 +67,23 @@ const FillInTheBlank: React.FC<Props> = ({ question, dev=true }) => {
             key={option}
             onClick={() => handleOptionClick(option)}
             className={`px-4 py-2 border rounded hover:brightness-90 w-32 text-center ${
-              userAnswers.includes(option) ? "bg-blue-500 text-white" : "bg-white"
+              userAnswer === option ? "bg-blue-500 text-white" : "bg-white"
             }`}
           >
             {option}
           </button>
         ))}
       </div>
-        {dev ? 
-          <>
-            <button
-              onClick={() => {
-                setHighlighted(solution.map(() => false));
-                checkAnswers();
-              }}
-              className="px-4 py-2 font-semibold text-white bg-green-500 rounded hover:bg-green-600"
-            >
-              Check Answers
-            </button>
-            {checkResult !== null && (
-              <span className="block mt-4 text-lg">
-                {checkResult ? "True" : "False"}
-              </span>
-            )}
-            {checkResult === null && (
-              <span className="block mt-4 text-lg">Null</span>
-            )}
-          </>
-        :
-        <></>  
-      }
 
+      {checkResult !== null && (
+        <div className="mt-4 text-lg">
+          {checkResult ? (
+            <span className="text-green-700">Correct!</span>
+          ) : (
+            <span className="text-red-700">Incorrect.</span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { playAnswerSoundFX } from "../../utils/soundFX";
 
 interface SpeakingQuestionProps {
   /** The object containing the question details */
@@ -7,10 +8,12 @@ interface SpeakingQuestionProps {
     question: string;
     questionText?: string;
   };
+  setQuestionSolved: (on: boolean) => void;
 }
 
 const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
   questionObj,
+  setQuestionSolved
 }) => {
   const { question, questionText = "Please pronounce the sentence written above" } = questionObj;
   
@@ -18,6 +21,12 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [checkResult, setCheckResult] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (checkResult){
+      setQuestionSolved(true);
+    }
+  }, [checkResult, setQuestionSolved])
 
   const startRecording = () => {
     // Check for browser support
@@ -46,6 +55,7 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
       const transcript = event.results[0][0].transcript;
       setRecordedText(transcript);
       setIsRecording(false);
+      checkAnswer(transcript);
     };
 
     recognition.onerror = (event: any) => { // eslint-disable-line
@@ -60,10 +70,12 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
     recognition.start();
   };
 
-  const checkAnswer = () => {
+  const checkAnswer = (transcript: string) => {
     // Normalize both strings (trim spaces and lower-case)
-    const normalizedRecorded = recordedText.trim().toLowerCase();
+    const normalizedRecorded = transcript.trim().toLowerCase();
     const normalizedQuestion = question.trim().toLowerCase();
+    const isCorrect = normalizedRecorded === normalizedQuestion;
+    playAnswerSoundFX(isCorrect); 
     setCheckResult(normalizedRecorded === normalizedQuestion);
   };
 
@@ -87,13 +99,6 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
           </p>
         </div>
       )}
-
-      <button
-        onClick={checkAnswer}
-        className="px-4 py-2 font-semibold text-white bg-green-500 rounded hover:bg-green-600"
-      >
-        Check Answer
-      </button>
 
       {checkResult !== null && (
         <div className="mt-4 text-lg">

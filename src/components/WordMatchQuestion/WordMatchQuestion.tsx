@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { playAnswerSoundFX } from "../../utils/soundFX";
 
 interface WordMatchQuestionProps {
   question: {
@@ -6,6 +7,7 @@ interface WordMatchQuestionProps {
     translatedWords: string[];
     answer: string[][];
   };
+  setQuestionSolved: (on: boolean) => void
   questionText?: string;
 }
 
@@ -16,6 +18,7 @@ interface PendingMatch {
 
 const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
   question,
+  setQuestionSolved,
   questionText = "Please match the words with their translations.",
 }) => {
   const { originalWords, translatedWords, answer } = question;
@@ -25,6 +28,12 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
   const [incorrectMatches, setIncorrectMatches] = useState<string[][]>([]);
   const [pendingMatch, setPendingMatch] = useState<PendingMatch | null>(null);
+
+  useEffect(() => {
+    if (matchedWords.length === originalWords.length){
+      setQuestionSolved(true);
+    }
+  }, [matchedWords, setQuestionSolved, originalWords])
 
   const handleOriginalClick = (word: string) => {
     if (incorrectMatches.length > 0 || isAnswerCorrect === false) {
@@ -50,6 +59,7 @@ const WordMatchQuestion: React.FC<WordMatchQuestionProps> = ({
           (pair[0] === activeTranslated && pair[1] === activeOriginal)
       );
 
+      playAnswerSoundFX(isMatch);
       if (isMatch) {
         setIsAnswerCorrect(true);
         setPendingMatch({ original: activeOriginal, translated: activeTranslated });
