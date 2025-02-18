@@ -15,7 +15,7 @@ const SpeakingQuestion: React.FC<SpeakingQuestionProps> = ({
   questionObj,
   setQuestionSolved
 }) => {
-  const { question, questionText = "Please pronounce the sentence written above" } = questionObj;
+  const { question, questionText = `Please pronounce the ${questionObj.question.length > 1 ?  "sentence" : "word"} written above` } = questionObj;
   
   const [recordedText, setRecordedText] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(false);
