@@ -29,9 +29,15 @@ const Test1: React.FC = () => {
     questions: [
       {
         type: 'wordMatch',
-        originalWords: ['travel'],
-        translatedWords: ['seyahat'],
-        answer: [['travel', 'seyahat']],
+        originalWords: ['travel', 'hobbies', 'food', 'music', 'future'],
+        translatedWords: ['gelecek', 'seyahat', 'hobiler', 'yemek', 'müzik'],
+        answer: [
+          ['travel', 'seyahat'],
+          ['hobbies', 'hobiler'],
+          ['food', 'yemek'],
+          ['music', 'müzik'],
+          ['future', 'gelecek'],
+        ],
       },
       {
         type: 'rearrangement',
