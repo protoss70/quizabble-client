@@ -13,7 +13,7 @@ const Recorder: React.FC = () => {
   const streamRef = useRef<MediaStream | null>(null);
   // @ts-expect-error it is working
   const socketRef = useRef<SocketIOClient.Socket | null>(null);
-  const serverUrl = "https://localhost:5000"; // your socket.io server URL
+  const serverUrl = "https://quizabble-server.vercel.app"; // your socket.io server URL
 
   const startRecording = async () => {
     // Connect to the backend via WebSocket
