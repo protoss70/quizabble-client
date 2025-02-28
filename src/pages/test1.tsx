@@ -99,7 +99,7 @@ const Test1: React.FC = () => {
     : ((currentIndex + (questionSolved ? 1 : 0)) / totalQuestions) * 100;
 
   return (
-    <div>
+    <div className='px-[20%] py-20'>
       {/* Fixed progress bar at the top */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <BorderLinearProgress variant="determinate" value={progress} />
