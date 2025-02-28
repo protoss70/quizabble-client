@@ -6,11 +6,11 @@ const Recorder: React.FC = () => {
   const [paused, setPaused] = useState(false);
   const [time, setTime] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [recordingName, setRecordingName] = useState("Voice Recorder");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const socketRef = useRef<any>(null);
+  // @ts-expect-error it is working
+  const socketRef = useRef<React.MutableRefObject<SocketIOClient.Socket | null>>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -139,6 +139,7 @@ const Recorder: React.FC = () => {
       await startRecording(
         setRecording, 
         setPaused, 
+        // @ts-expect-error it is working
         setTime, 
         intervalRef, 
         mediaRecorderRef, 
@@ -209,7 +210,7 @@ const Recorder: React.FC = () => {
           </div>
           
           {/* Recording name and time */}
-          <div className="mb-1 text-xl font-medium text-blue-400">{recordingName}</div>
+          <div className="mb-1 text-xl font-medium text-blue-400">Voice Recorder</div>
           <div className="text-lg text-pink-500">{formatTime(time)}</div>
         </div>
         
