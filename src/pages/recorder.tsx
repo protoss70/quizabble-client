@@ -175,7 +175,8 @@ const Recorder: React.FC = () => {
       setShowConfirmDialog, 
       mediaRecorderRef, 
       streamRef, 
-      intervalRef
+      intervalRef,
+      socketRef
     );
     
     if (audioContextRef.current) {
